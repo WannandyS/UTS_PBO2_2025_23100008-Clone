@@ -1,7 +1,17 @@
 package com.mycompany.mavenproject3;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class Mavenproject3 extends JFrame implements Runnable {
     private String text;
@@ -9,14 +19,25 @@ public class Mavenproject3 extends JFrame implements Runnable {
     private int width;
     private BannerPanel bannerPanel;
     private JButton addProductButton;
+    private JButton sellProductButton;
     private JTextField codeField;
     private JTextField nameField;
     private JComboBox<String> categoryField;
     private JTextField priceField;
     private JTextField stockField;
+    private ProductForm productForm;
+    private ProductSell productSell;
+    private List<Product> products;
+    private List<DataProduct> dataProduct;
+    private String bannerSentence = "";
 
-    public Mavenproject3(String text) {
-        this.text = text;
+    public Mavenproject3() {
+        this.products = new ArrayList<>();
+        products.add(new Product(1, "P001", "Americano", "Coffee", 18000, 10));
+        products.add(new Product(2, "P002", "Pandan Latte", "Coffee", 15000, 8));
+
+        this.dataProduct = new ArrayList<>();
+            
         setTitle("WK. STI Chill");
         setSize(600, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -26,42 +47,41 @@ public class Mavenproject3 extends JFrame implements Runnable {
         // Panel teks berjalan
         bannerPanel = new BannerPanel();
         add(bannerPanel, BorderLayout.CENTER);
+        LoadBanner();
 
-        // Tombol "Kelola Produk"
+        // Tombol "Kelola Produk" dan "Form Penjualan"
         JPanel bottomPanel = new JPanel();
         addProductButton = new JButton("Kelola Produk");
+        sellProductButton = new JButton("Form Penjualan");
         bottomPanel.add(addProductButton);
+        bottomPanel.add(sellProductButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        JPanel buttonPanel = new JPanel();
-        JButton addButton = new JButton("Tambah Produk");
-        JButton editButton = new JButton("Edit Produk");
-        JButton deleteButton = new JButton("Hapus Produk");
+        productForm = new ProductForm(products, this);
+        productSell = new ProductSell(products, this);
+
+        productSell.setProductForm(productForm);
+        productForm.setProductSell(productSell);
         
         addProductButton.addActionListener(e -> {
-            new ProductForm().setVisible(true);
+            if (productForm == null) {
+                productForm = new ProductForm(products, this);
+            }
+            if (productSell == null) {
+                productSell = new ProductSell(products, this);
+            }
+            productForm.setVisible(true);
         });
 
-        JPanel inputPanel = new JPanel(new FlowLayout());
-        codeField = new JTextField(5);
-        nameField = new JTextField(15);
-        categoryField = new JComboBox<>();
-        priceField = new JTextField(10);
-        stockField = new JTextField(5);
-        inputPanel.add(new JLabel("Kode: "));
-        inputPanel.add(codeField);
-        inputPanel.add(new JLabel("Nama: "));
-        inputPanel.add(nameField);
-        inputPanel.add(new JLabel("Kategori: "));
-        inputPanel.add(categoryField);
-        inputPanel.add(new JLabel("Harga: "));
-        inputPanel.add(priceField );
-        inputPanel.add(new JLabel("Stok: "));
-        inputPanel.add(stockField);
-
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(deleteButton);
+        sellProductButton.addActionListener(e -> {
+            if (productForm == null) {
+                productForm = new ProductForm(products, this);
+            }
+            if (productSell == null) {
+                productSell = new ProductSell(products, this);
+            }
+            productSell.setVisible(true);
+        });
 
         setVisible(true);
 
@@ -75,7 +95,7 @@ public class Mavenproject3 extends JFrame implements Runnable {
             super.paintComponent(g);
             g.setColor(Color.RED);
             g.setFont(new Font("Arial", Font.BOLD, 18));
-            g.drawString(text, x, getHeight() / 2);
+            g.drawString(bannerSentence, x, getHeight() / 2);
         }
     }
 
@@ -85,7 +105,7 @@ public class Mavenproject3 extends JFrame implements Runnable {
         while (true) {
             x += 5;
             if (x > width) {
-                x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(text);
+                x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(bannerSentence);
             }
             bannerPanel.repaint();
             try {
@@ -96,7 +116,20 @@ public class Mavenproject3 extends JFrame implements Runnable {
         }
     }
 
+    public void LoadBanner() {
+        StringBuilder text = new StringBuilder("Menu yang tersedia: ");
+
+        for (Product products : products) {
+            if (products.getStock() > 0) {
+                text.append(products.getName()).append(" | ");
+            }
+            bannerSentence = text.toString();
+            bannerPanel.repaint();
+        }
+    }
+
     public static void main(String[] args) {
-        new Mavenproject3("Menu yang tersedia: Americano | Pandan Latte | Aren Latte | Matcha Frappucino | Jus Apel");
+        // Jalankan aplikasi utama
+        new Mavenproject3();
     }
 }
