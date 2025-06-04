@@ -20,6 +20,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 public class ProductForm extends JFrame {
@@ -71,12 +73,15 @@ public class ProductForm extends JFrame {
         
         saveButton = new JButton("Simpan");
         formPanel.add(saveButton);
+        saveButton.setEnabled(false);
 
         deleteButton = new JButton("Hapus");
         formPanel.add(deleteButton);
+        deleteButton.setEnabled(false);
 
         editButton = new JButton("Ubah");
         formPanel.add(editButton);
+        editButton.setEnabled(false);
         
         tableModel = new DefaultTableModel(new String[]{"Kode", "Nama", "Kategori", "Harga Jual", "Stok"}, 0);
         drinkTable = new JTable(tableModel);
@@ -97,7 +102,27 @@ public class ProductForm extends JFrame {
                 priceField.setText(String.valueOf(tableModel.getValueAt(selectedRow, 3)));
                 stockField.setText(String.valueOf(tableModel.getValueAt(selectedRow, 4)));
             }
-        });  
+        });
+
+        DocumentListener inputListener = new DocumentListener() {
+            void updateButtons() {
+                boolean filled = !codeField.getText().trim().isEmpty() && !nameField.getText().trim().isEmpty() && !priceField.getText().trim().isEmpty() && !stockField.getText().trim().isEmpty();
+                boolean rowSelected = drinkTable.getSelectedRow() != -1;
+
+                saveButton.setEnabled(filled && !rowSelected);
+                editButton.setEnabled(filled && rowSelected);
+                deleteButton.setEnabled(filled && rowSelected);
+            }
+
+            public void insertUpdate(DocumentEvent e) { updateButtons(); }
+            public void removeUpdate(DocumentEvent e) { updateButtons(); }
+            public void changedUpdate(DocumentEvent e) { updateButtons(); }
+        };
+
+        codeField.getDocument().addDocumentListener(inputListener);
+        nameField.getDocument().addDocumentListener(inputListener);
+        priceField.getDocument().addDocumentListener(inputListener);
+        stockField.getDocument().addDocumentListener(inputListener);
 
         //tambah
         saveButton.addActionListener(e -> {
@@ -124,6 +149,7 @@ public class ProductForm extends JFrame {
                 categoryField.setSelectedItem(0);
                 priceField.setText("");
                 stockField.setText("");
+                saveButton.setEnabled(false);
                 productSell.refreshData();
                 mainApp.LoadBanner();
             } catch (NumberFormatException ex) {
@@ -170,6 +196,8 @@ public class ProductForm extends JFrame {
                 categoryField.setSelectedIndex(0);
                 priceField.setText("");
                 stockField.setText("");
+                editButton.setEnabled(false);
+                deleteButton.setEnabled(false);
                 productSell.refreshData();
                 mainApp.LoadBanner();
             } catch (NumberFormatException ex) {
@@ -190,6 +218,8 @@ public class ProductForm extends JFrame {
                 categoryField.setSelectedIndex(0);
                 priceField.setText("");
                 stockField.setText("");
+                deleteButton.setEnabled(false);
+                editButton.setEnabled(false);
                 productSell.refreshData();
                 mainApp.LoadBanner();
             } else {

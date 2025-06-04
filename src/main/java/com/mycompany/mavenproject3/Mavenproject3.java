@@ -28,8 +28,11 @@ public class Mavenproject3 extends JFrame implements Runnable {
     private ProductForm productForm;
     private ProductSell productSell;
     private List<Product> products;
+    private List<Customer> customers;
     private List<DataProduct> dataProduct;
     private String bannerSentence = "";
+    private JButton customerButton;
+    private CustomerForm customerForm;
 
     public Mavenproject3() {
         this.products = new ArrayList<>();
@@ -37,6 +40,8 @@ public class Mavenproject3 extends JFrame implements Runnable {
         products.add(new Product(2, "P002", "Pandan Latte", "Coffee", 15000, 8));
 
         this.dataProduct = new ArrayList<>();
+
+        this.customers = new ArrayList<>();
             
         setTitle("WK. STI Chill");
         setSize(600, 150);
@@ -53,8 +58,10 @@ public class Mavenproject3 extends JFrame implements Runnable {
         JPanel bottomPanel = new JPanel();
         addProductButton = new JButton("Kelola Produk");
         sellProductButton = new JButton("Form Penjualan");
+        customerButton = new JButton("Data Pelanggan");
         bottomPanel.add(addProductButton);
         bottomPanel.add(sellProductButton);
+        bottomPanel.add(customerButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
         productForm = new ProductForm(products, this);
@@ -81,6 +88,13 @@ public class Mavenproject3 extends JFrame implements Runnable {
                 productSell = new ProductSell(products, this);
             }
             productSell.setVisible(true);
+        });
+
+        customerButton.addActionListener(e -> {
+            if (customerForm == null) {
+                customerForm = new CustomerForm(customers);
+            }
+            customerForm.setVisible(true);
         });
 
         setVisible(true);
